@@ -28,3 +28,6 @@ __pycache__
 .venv
 .vscode
 tree.py
+
+# 其他
+readme_back.md

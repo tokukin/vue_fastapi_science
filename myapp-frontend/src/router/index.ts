@@ -13,6 +13,16 @@ const routes: RouteRecordRaw[] = [
     name: "Home", // 路由名称（可选）
     component: Home, // 对应组件
   },
+  {
+    path: "/chemical/elements",
+    name: "ChemicalElements",
+    component: () => import("../views/ChemicalElements.vue"),
+  },
+  {
+    path: "/chemical/element/:elementId",
+    name: "ChemicalElementDetail",
+    component: () => import("../views/ChemicalElementDetail.vue"),
+  },
 
   {
     // 404 路由（放在最后）
