@@ -10,18 +10,74 @@ import Home from "../views/Home.vue";
 const routes: RouteRecordRaw[] = [
   {
     path: "/", // 路由路径
-    name: "Home", // 路由名称（可选）
-    component: Home, // 对应组件
+    // name: "Home", // 路由名称（可选）
+    component: () => import("../views/Home.vue"),
+    meta: { title: "首页", breadcrumb: "首页" },
   },
   {
-    path: "/chemical/elements",
-    name: "ChemicalElements",
+    path: "/math",
+    name: "Math",
+    component: () => import("../views/Math.vue"),
+    meta: {
+      title: "数学",
+      breadcrumb: "数学",
+      parentBreadcrumb: { path: "/", name: "首页" },
+    },
+  },
+  {
+    path: "/physics",
+    name: "Physics",
+    component: () => import("../views/Physics.vue"),
+    meta: {
+      title: "物理",
+      breadcrumb: "物理",
+      parentBreadcrumb: { path: "/", name: "首页" },
+    },
+  },
+  {
+    path: "/chemistry",
+    name: "Chemistry",
+    component: () => import("../views/Chemistry.vue"),
+    meta: {
+      title: "化学",
+      breadcrumb: "化学",
+      parentBreadcrumb: { path: "/", name: "首页" },
+    },
+    children: [],
+  },
+  {
+    path: "/chemistry/periodic-table",
+    name: "periodic-table",
     component: () => import("../views/ChemicalElements.vue"),
+    meta: {
+      title: "元素周期表",
+      breadcrumb: "元素周期表",
+      parentBreadcrumb: [
+        { path: "/", name: "首页" }, // 第一层父级
+        { path: "/chemistry", name: "化学" },
+      ],
+    },
   },
+  ///chemistry/other
   {
-    path: "/chemical/element/:elementId",
+    path: "/chemistry/other",
+    name: "ChemicalElements",
+    component: () => import("../views/che_test.vue"),
+    meta: {
+      title: "元素周期表",
+      breadcrumb: "元素周期表_test",
+      parentBreadcrumb: [
+        { path: "/", name: "首页" }, // 第一层父级
+        { path: "/chemistry", name: "化学" },
+      ],
+    },
+  },
+
+  {
+    path: "/chemistry/element/:elementId",
     name: "ChemicalElementDetail",
     component: () => import("../views/ChemicalElementDetail.vue"),
+    meta: { title: "元素详情", breadcrumb: "元素详情" },
   },
 
   {
@@ -29,6 +85,11 @@ const routes: RouteRecordRaw[] = [
     path: "/:pathMatch(.*)*", // 匹配所有未定义的路由
     name: "NotFound",
     component: () => import("../views/NotFound.vue"), // 懒加载 404 页面
+    meta: {
+      title: "404 未找到",
+      breadcrumb: "404 未找到",
+      parentBreadcrumb: { path: "/", name: "首页" },
+    },
   },
 ];
 
@@ -40,3 +101,15 @@ const router = createRouter({
 });
 
 export default router;
+
+// 接上面的 router/index.ts
+router.beforeEach((to, from, next) => {
+  // 如果路由配置了 meta.title，则设置标题
+  if (to.meta.title) {
+    document.title = to.meta.title as string; // 类型断言为字符串
+  } else {
+    // 默认标题（可选）
+    document.title = "元素周期表";
+  }
+  next(); // 必须调用 next() 继续导航
+});

@@ -5,6 +5,8 @@ import DataService from "../services/DataService.js";
 import { useCounterStore } from "@/store/counter";
 import { useUserStore } from "@/store/userStore";
 import type { UserInfo } from "@/types/user";
+import { useRoute } from "vue-router";
+import { watch } from "vue";
 
 const counter = useCounterStore();
 const userStore = useUserStore();
@@ -96,58 +98,86 @@ const handleSelectChange = () => {
   }
 };
 
-// 在组件挂载时调用 fetchData 函数
-//onMounted(fetchData);
+const route = useRoute();
+// 判断是否有子路由内容需要渲染
+const hasRouteContent = ref(false);
+
+// 初始化时检查
+const checkRouteContent = () => {
+  // 根路由的层级是 0，若 matched 长度 > 1，说明有子路由匹配
+  // 例如：访问 /math 时，matched 包含 [根路由, /math]，长度为 2 > 1 → 有内容
+  // 访问 / 时，matched 仅包含 [根路由]，长度为 1 → 无内容
+  hasRouteContent.value = route.matched.length > 1;
+};
+
+// 初始检查一次
+checkRouteContent();
+
+// 监听路由变化，动态更新状态
+watch(
+  () => route.path,
+  () => {
+    checkRouteContent();
+  }
+);
 </script>
 
 <template>
-  <div class="hello">
-    <h1>{{ title }}</h1>
+  <template v-if="hasRouteContent">
+    <!-- 子路由组件将在这里渲染 -->
+    <router-view />
+  </template>
+  <template v-else>
+    <div class="hello">
+      <h1>{{ title }}</h1>
 
-    <div>
-      <label>选择用户：</label>
-      <!-- 使用 Element Plus 的 ElSelect 更美观，且兼容 TS -->
-      <ElSelect
-        v-model="selectedId"
-        placeholder="请选择用户"
-        @change="handleSelectChange"
-      >
-        <ElOption
-          v-for="opt in options"
-          :key="opt.id"
-          :label="opt.name"
-          :value="opt.id"
-        />
-      </ElSelect>
-    </div>
-    <h2>直接获取到的用户信息：</h2>
-    <p v-if="Object.keys(item).length">{{ item }}</p>
-    <p v-else-if="selectedId">暂无用户信息</p>
-    <hr />
-    <div class="user-detail">
-      <h2>pinia获取到用户详情</h2>
-      <div v-if="userStore.isLoading">加载中...</div>
-      <div v-else-if="userStore.error" class="error">{{ userStore.error }}</div>
-      <div v-else-if="userStore.userInfo">
-        <p>
-          ID: {{ userStore.userInfo.id }}，用户名:
-          {{ userStore.userInfo.username }}，email:
-          {{ userStore.userInfo.email }}，是否激活:
-          {{ userStore.userInfo.is_active }}，创建时间:
-          {{ userStore.userInfo.created_at }}
-        </p>
+      <div>
+        <label>选择用户：</label>
+        <!-- 使用 Element Plus 的 ElSelect 更美观，且兼容 TS -->
+        <ElSelect
+          v-model="selectedId"
+          placeholder="请选择用户"
+          @change="handleSelectChange"
+        >
+          <ElOption
+            v-for="opt in options"
+            :key="opt.id"
+            :label="opt.name"
+            :value="opt.id"
+          />
+        </ElSelect>
+      </div>
+      <h2>直接获取到的用户信息：</h2>
+      <p v-if="Object.keys(item).length">{{ item }}</p>
+      <p v-else-if="selectedId">暂无用户信息</p>
+      <hr />
+      <div class="user-detail">
+        <h2>pinia获取到用户详情</h2>
+        <div v-if="userStore.isLoading">加载中...</div>
+        <div v-else-if="userStore.error" class="error">
+          {{ userStore.error }}
+        </div>
+        <div v-else-if="userStore.userInfo">
+          <p>
+            ID: {{ userStore.userInfo.id }}，用户名:
+            {{ userStore.userInfo.username }}，email:
+            {{ userStore.userInfo.email }}，是否激活:
+            {{ userStore.userInfo.is_active }}，创建时间:
+            {{ userStore.userInfo.created_at }}
+          </p>
 
-        <!-- 其他字段 -->
+          <!-- 其他字段 -->
+        </div>
       </div>
     </div>
-  </div>
-  <hr />
-  <!-- 添加按钮，点击触发 increment 函数 -->
-  <button @click="handleIncrement">点击加 1</button>
+    <hr />
+    <!-- 添加按钮，点击触发 increment 函数 -->
+    <button @click="handleIncrement">点击加 1</button>
 
-  <!-- 可选：添加一个重置按钮 -->
-  <button @click="handleReset" style="margin-left: 10px">重置计数</button>
-  <div>Current Count: {{ counter.count }}</div>
+    <!-- 可选：添加一个重置按钮 -->
+    <button @click="handleReset" style="margin-left: 10px">重置计数</button>
+    <div>Current Count: {{ counter.count }}</div>
+  </template>
 </template>
 
 <style scoped>
