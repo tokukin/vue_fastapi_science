@@ -22,8 +22,8 @@ const handleSelect = (index: string) => {
     :ellipsis="false"
     @select="handleSelect"
   >
-    <el-menu-item index="0">
-      <img style="width: 50px" src="../assets/logo_ss.svg" alt="Element logo" />
+    <el-menu-item index="/">
+      <img style="width: 50px" src="../assets/logo_ss.svg" alt="Element logo" >请你背下来</img>
     </el-menu-item>
     <!-- <el-menu-item index="/">首页</el-menu-item> -->
     <el-menu-item index="/math">数学</el-menu-item>

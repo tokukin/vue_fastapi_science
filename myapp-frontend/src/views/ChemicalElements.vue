@@ -209,17 +209,19 @@ onMounted(() => {
       }
       // 弹窗显示元素信息
       //alert(`你点击了元素：${elementId}`);
-      const windowWidth = 400; // 窗口宽度
-      const windowHeight = 500; // 窗口高度
+      const windowWidth = window.innerWidth; // 窗口宽度
+      const windowHeight = window.innerHeight; // 窗口高度
       // 计算窗口居中位置（基于当前窗口大小）
       const left = (window.screen.width - windowWidth) / 2;
       const top = (window.screen.height - windowHeight) / 2;
       // 窗口参数：width/height=尺寸，left/top=位置，toolbar=no=隐藏工具栏
-      const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`;
+      //const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`;
+      const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`;
       //const routePath = `/chemistry/element-detail?id=${elementId}`;
       const routePath = `/chemistry/element-detail/${elementId}`;
       const fullUrl = window.location.origin + routePath;
-      const newWindow = window.open(fullUrl, "_blank", windowFeatures);
+      const newWindow = window.open(fullUrl, "_blank");
+      // const newWindow = window.open(fullUrl, "_blank", windowFeatures);
       // const newWindow = window.open("", "_blank", windowFeatures);
       if (!newWindow) {
         alert("浏览器阻止了弹出窗口，请允许弹出权限");
@@ -835,6 +837,7 @@ onUnmounted(() => {
 .grid-element:hover {
   transform: scale(1.05); /* 点击/悬浮时轻微放大 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影增强立体感 */
+  cursor: pointer;
 }
 
 /* 若需点击时背景色变化，可单独定义 */

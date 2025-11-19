@@ -8,7 +8,7 @@ import type { ChemicalElementInfo } from "@/types/chemicalelement";
 import { log } from "node:console";
 
 const chemicalElementStore = useChemicalElementStore();
-
+const elementData = ref<ChemicalElementInfo | null>(null); // 关键：添加这行
 // 组件挂载时获取用户信息
 /*
 onMounted(async () => {
@@ -52,30 +52,35 @@ const setAllRatioItems = () => {
 onMounted(async () => {
   try {
     const elementId = Number(route.params.elementId);
-    const elementData: ChemicalElementInfo =
-      await chemicalElementStore.fetchChemicalElementInfo(elementId);
-    console.log("元素数据:", elementData);
+    elementData.value = await chemicalElementStore.fetchChemicalElementInfo(
+      elementId
+    );
+    if (elementData.value) {
+      console.log("元素数据:", elementData.value);
+    } else {
+      console.log("元素数据为空");
+    }
     const elementDetail = document.getElementById("element-detail-large");
     if (elementDetail) {
       const newDivHtml = `<div class="element-detail-info-header">
-      <div class="element-detail-number">${elementData.number}</div>
-      <div class="element-detail-symbol">${elementData.symbol}</div>
+      <div class="element-detail-number">${elementData.value.number}</div>
+      <div class="element-detail-symbol">${elementData.value.symbol}</div>
       </div>
       <div class="element-detail-info-body">
-      <div class="element-detail-chineseName">${elementData.chineseName}</div>
-      <div class="element-detail-englishName">${elementData.englishName}</div>
-      <div class="element-detail-electronConfig">${elementData.electronConfig}</div>
-      <div class="element-detail-type">${elementData.type}</div>
+      <div class="element-detail-chineseName">${elementData.value.chineseName}</div>
+      <div class="element-detail-englishName">${elementData.value.englishName}</div>
+      <div class="element-detail-electronConfig">${elementData.value.electronConfig}</div>
+      <div class="element-detail-type">${elementData.value.type}</div>
  
       </div>
       <div class="element-detail-info-foot">
       
-      <div class="element-detail-weight">${elementData.weight}</div>
+      <div class="element-detail-weight">${elementData.value.weight}</div>
       
       
       </div>`;
       elementDetail.innerHTML += newDivHtml;
-      elementDetail.classList.add(elementData.type);
+      elementDetail.classList.add(elementData.value.type);
     }
   } catch (err) {
     console.error("获取失败:", err);
@@ -107,16 +112,79 @@ const title = "chemical element";
 </script>
 
 <template>
-  <div class="hello">
-    <h1>{{ title }}</h1>
-    <hr />
-  </div>
-
   <el-row :gutter="10">
     <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8" :offset="8">
-      <div class="element-detail-large" id="element-detail-large"></div>
+      <h1>元素详情</h1>
     </el-col>
   </el-row>
+  <hr />
+
+  <el-row :gutter="10">
+    <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2" :offset="1">
+      <div class="element-detail-text">基<br />本<br />情<br />况</div>
+    </el-col>
+    <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+      <div class="element-detail-large" id="element-detail-large"></div>
+    </el-col>
+    <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+      <div class="element-detail-text">
+        <!-- 加 v-if 判断，避免 elementData 为 null 时报错 -->
+        <div v-if="elementData">序号：{{ elementData.number }}</div>
+        <div v-if="elementData">符号：{{ elementData.symbol }}</div>
+        <div v-if="elementData">名称：{{ elementData.chineseName }}</div>
+        <div v-if="elementData">英文名称：{{ elementData.englishName }}</div>
+
+        <div v-else>加载中...</div>
+        <!-- 加载状态提示 -->
+      </div>
+    </el-col>
+    <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+      <div class="element-detail-text">
+        <!-- 加 v-if 判断，避免 elementData 为 null 时报错 -->
+
+        <div v-if="elementData">质量：{{ elementData.weight }}</div>
+
+        <div v-if="elementData?.type === 'nonmetal'">
+          类型：{{ elementData.type }}(非金属)
+        </div>
+        <div v-if="elementData?.type === 'noblegas'">
+          类型：{{ elementData.type }}(稀有气体)
+        </div>
+        <div v-if="elementData?.type === 'metal'">
+          类型：{{ elementData.type }}(金属)
+        </div>
+        <div v-if="elementData?.type === 'metalloid'">
+          类型：{{ elementData.type }}(类金属)
+        </div>
+        <div v-if="elementData?.type === 'halogen'">
+          类型：{{ elementData.type }}(卤素)
+        </div>
+        <div v-if="elementData?.type === 'actinide'">
+          类型：{{ elementData.type }}(锕系元素)
+        </div>
+        <div v-if="elementData?.type === 'lanthanide'">
+          类型：{{ elementData.type }}(镧系元素)
+        </div>
+        <div v-if="elementData?.type === 'transitionmetal'">
+          类型：{{ elementData.type }}(过渡金属)
+        </div>
+        <div v-if="elementData?.type === 'alkalimetal'">
+          类型：{{ elementData.type }}(碱金属)
+        </div>
+        <div v-if="elementData?.type === 'alkalineearth'">
+          类型：{{ elementData.type }}(碱土元素)
+        </div>
+        <div v-if="elementData">
+          第{{ elementData.group }}组；第{{ elementData.period }}周期
+        </div>
+
+        <div v-if="elementData">电子排布：{{ elementData.electronConfig }}</div>
+        <div v-else>加载中...</div>
+        <!-- 加载状态提示 -->
+      </div>
+    </el-col>
+  </el-row>
+  <hr />
 </template>
 <style scoped>
 #element-detail-large {
@@ -202,5 +270,18 @@ const title = "chemical element";
   font-weight: bold;
   text-align: center;
   font-size: clamp(5px, 3vw, 45px);
+}
+::v-deep .element-detail-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直方向居中（主轴居中） */
+  align-items: center; /* 水平方向居中（交叉轴居中） */
+  font-size: clamp(20px, 3vw, 30px);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-weight: bold;
+  background-color: #3966a2;
+  color: aliceblue;
+  height: 100%;
 }
 </style>
