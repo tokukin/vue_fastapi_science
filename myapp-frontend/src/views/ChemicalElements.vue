@@ -6,8 +6,148 @@ import { useChemicalElementStore } from "@/store/chemicalElementsStore";
 import { off } from "process";
 import { log } from "console";
 
+const store = useChemicalElementStore();
+
+// 组件挂载时自动加载全量数据
+const loadAllElements = async () => {
+  try {
+    await store.fetchAllChemicalElements();
+    console.log("全量元素加载完成");
+    //console.log(store.allElements);
+    console.log(windowSize.value.clientWidth);
+    // 获取所有 .element-type-sample 元素
+    const elementSamples = document.querySelectorAll<HTMLDivElement>(
+      ".element-type-sample"
+    );
+
+    elementSamples.forEach((elementSample) => {
+      elementSample.classList.remove("element-type-sample-large");
+      elementSample.classList.remove("element-type-sample-mid");
+      elementSample.classList.remove("element-type-sample-small");
+      //elementSample.classList.add("element-type-sample-large");
+    });
+
+    if (windowSize.value.clientWidth > 1970) {
+      elementSamples.forEach((elementSample) => {
+        elementSample.classList.add("element-type-sample-large");
+      });
+      for (let elem of store.allElements) {
+        //console.log(elem.type);
+
+        var elementDom = document.getElementById(`element-${elem.number}`);
+        if (elementDom) {
+          // 修改元素名称（找到 .element-name 类的子元素）
+          // const newDivHtml = `${elem.symbol}`;
+          const newDivHtml = `<div class="element-info-up"><div class="element-number">${elem.number}</div><div class="element-symbol">${elem.symbol}</div></div><div class="element-info-mid"><div class="element-chineseName">${elem.chineseName}</div></div>`;
+          elementDom.innerHTML += newDivHtml;
+          elementDom.classList.add(elem.type);
+        }
+      }
+      var elementDoms =
+        document.querySelectorAll<HTMLDivElement>(".lanthanide-sample");
+      elementDoms.forEach((elementDom) => {
+        const newDivHtml = `57-71<br />镧系`;
+        elementDom.innerHTML += newDivHtml;
+        elementDom.classList.add("nide-sample");
+      });
+      var elementDoms =
+        document.querySelectorAll<HTMLDivElement>(".actinide-sample");
+      elementDoms.forEach((elementDom) => {
+        const newDivHtml = `89-103<br />锕系`;
+        elementDom.innerHTML += newDivHtml;
+        elementDom.classList.add("nide-sample");
+      });
+    } else if (windowSize.value.clientWidth > 1300) {
+      elementSamples.forEach((elementSample) => {
+        elementSample.classList.add("element-type-sample-mid");
+      });
+      for (let elem of store.allElements) {
+        //console.log(elem.type);
+
+        var elementDom = document.getElementById(`element-${elem.number}`);
+        if (elementDom) {
+          // 修改元素名称（找到 .element-name 类的子元素）
+          // const newDivHtml = `${elem.symbol}`;
+          const newDivHtml = `<div class="element-info-up"><div class="element-number-mid">${elem.number}</div></div><div class="element-info-mid"><div class="element-symbol-mid">${elem.symbol}</div></div>`;
+          elementDom.innerHTML += newDivHtml;
+          elementDom.classList.add(elem.type);
+        }
+      }
+      var elementDoms =
+        document.querySelectorAll<HTMLDivElement>(".lanthanide-sample");
+      elementDoms.forEach((elementDom) => {
+        const newDivHtml = `57-71<br />镧系`;
+        elementDom.innerHTML += newDivHtml;
+        elementDom.classList.add("nide-sample-mid");
+      });
+      var elementDoms =
+        document.querySelectorAll<HTMLDivElement>(".actinide-sample");
+      elementDoms.forEach((elementDom) => {
+        const newDivHtml = `89-103<br />锕系`;
+        elementDom.innerHTML += newDivHtml;
+        elementDom.classList.add("nide-sample-mid");
+      });
+    } else {
+      elementSamples.forEach((elementSample) => {
+        elementSample.classList.add("element-type-sample-small");
+      });
+      for (let elem of store.allElements) {
+        //console.log(elem.type);
+
+        var elementDom = document.getElementById(`element-${elem.number}`);
+        if (elementDom) {
+          // 修改元素名称（找到 .element-name 类的子元素）
+          // const newDivHtml = `${elem.symbol}`;
+          const newDivHtml = `<div class="element-symbol-small">${elem.symbol}</div>`;
+          elementDom.innerHTML += newDivHtml;
+          elementDom.classList.add(elem.type);
+        }
+      }
+      var elementDoms =
+        document.querySelectorAll<HTMLDivElement>(".lanthanide-sample");
+      elementDoms.forEach((elementDom) => {
+        const newDivHtml = `57-71<br />镧系`;
+        elementDom.innerHTML += newDivHtml;
+        elementDom.classList.add("nide-sample-small");
+      });
+      var elementDoms =
+        document.querySelectorAll<HTMLDivElement>(".actinide-sample");
+      elementDoms.forEach((elementDom) => {
+        const newDivHtml = `89-103<br />锕系`;
+        elementDom.innerHTML += newDivHtml;
+        elementDom.classList.add("nide-sample-small");
+      });
+    }
+
+    // 批量添加新内容
+  } catch (err) {
+    console.error("加载失败", err);
+  }
+};
+
+const title = "元素周期表";
+
+// 响应式变量存储窗口大小
+const windowSize = ref({
+  width: 0,
+  height: 0,
+  // 可选：添加不含滚动条的尺寸
+  clientWidth: 0,
+  clientHeight: 0,
+});
+
+// 更新窗口大小的函数
+const updateWindowSize = () => {
+  windowSize.value.width = window.innerWidth;
+  windowSize.value.height = window.innerHeight;
+  windowSize.value.clientWidth = document.documentElement.clientWidth;
+  windowSize.value.clientHeight = document.documentElement.clientHeight;
+};
+
 // 批量设置所有 .ratio-item 的高度 = 宽度 × 1.2
 const setAllRatioItems = () => {
+  updateWindowSize();
+
   // 获取所有带 .ratio-item 类的元素
   const items = document.querySelectorAll<HTMLDivElement>(".grid-element");
 
@@ -18,6 +158,37 @@ const setAllRatioItems = () => {
       item.style.height = `${width * 1.2}px`; // 高度 = 宽度 × 1.2
     }
   });
+  clearGridElements();
+  loadAllElements();
+};
+
+const clearGridElements = () => {
+  // 获取所有 .grid-element 元素
+  const gridElements =
+    document.querySelectorAll<HTMLDivElement>(".grid-element");
+
+  gridElements.forEach((el) => {
+    if (el.id) {
+      // 1. 清除所有子内容（包括文本和嵌套元素）
+      el.innerHTML = "";
+
+      // 2. 仅保留 grid-element 类，移除其他所有类
+      // 先获取当前所有类名
+      const classes = el.classList;
+      // 过滤出需要保留的类（仅 grid-element）
+      const classesToKeep = Array.from(classes).filter(
+        (cls) => cls === "grid-element"
+      );
+      // 移除所有类，再重新添加需要保留的类
+      el.className = classesToKeep.join(" ");
+    }
+  });
+};
+const openElementDetail = (elementId: string) => {
+  // 带参数的路由路径：/element-detail?id=1
+  const routePath = `/element-detail?id=${elementId}`;
+  const fullUrl = window.location.origin + routePath;
+  window.open(fullUrl, "_blank", "width=800,height=600");
 };
 
 // 初始化时设置
@@ -25,74 +196,49 @@ onMounted(() => {
   setAllRatioItems();
   // 监听窗口大小变化，实时更新（可选）
   window.addEventListener("resize", setAllRatioItems);
+  // 获取所有 .grid-element 元素
+  const gridElements =
+    document.querySelectorAll<HTMLDivElement>(".grid-element");
+
+  gridElements.forEach((el) => {
+    el.addEventListener("click", () => {
+      // 从 id 中提取元素序号（如 element-1 → 1）
+      const elementId = el.id.split("-").slice(-1)[0];
+      if (!elementId) {
+        return;
+      }
+      // 弹窗显示元素信息
+      //alert(`你点击了元素：${elementId}`);
+      const windowWidth = 400; // 窗口宽度
+      const windowHeight = 500; // 窗口高度
+      // 计算窗口居中位置（基于当前窗口大小）
+      const left = (window.screen.width - windowWidth) / 2;
+      const top = (window.screen.height - windowHeight) / 2;
+      // 窗口参数：width/height=尺寸，left/top=位置，toolbar=no=隐藏工具栏
+      const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`;
+      //const routePath = `/chemistry/element-detail?id=${elementId}`;
+      const routePath = `/chemistry/element-detail/${elementId}`;
+      const fullUrl = window.location.origin + routePath;
+      const newWindow = window.open(fullUrl, "_blank", windowFeatures);
+      // const newWindow = window.open("", "_blank", windowFeatures);
+      if (!newWindow) {
+        alert("浏览器阻止了弹出窗口，请允许弹出权限");
+        return;
+      }
+
+      // 若需添加点击态样式（如背景色变化），可临时添加类名并延迟移除
+      el.classList.add("clicked");
+      setTimeout(() => {
+        el.classList.remove("clicked");
+      }, 200);
+    });
+  });
 });
 
 // 组件卸载时清理事件监听
 onUnmounted(() => {
   window.removeEventListener("resize", setAllRatioItems);
 });
-
-const store = useChemicalElementStore();
-
-// 组件挂载时自动加载全量数据
-const loadAllElements = async () => {
-  try {
-    await store.fetchAllChemicalElements();
-    console.log("全量元素加载完成");
-    console.log(store.allElements);
-
-    for (let elem of store.allElements) {
-      console.log(elem.type);
-
-      var elementDom = document.getElementById(`element-${elem.number}`);
-      if (elementDom) {
-        // 修改元素名称（找到 .element-name 类的子元素）
-        // const newDivHtml = `${elem.symbol}`;
-        const newDivHtml = `<div class="element-symbol">${elem.symbol}</div><div class="element-chineseName">${elem.chineseName}</div>`;
-        elementDom.innerHTML += newDivHtml;
-        elementDom.classList.add(elem.type);
-      }
-    }
-    elementDom = document.getElementById(`element-57-71`);
-    if (elementDom) {
-      // 修改元素名称（找到 .element-name 类的子元素）
-      // const newDivHtml = `${elem.symbol}`;
-      const newDivHtml = `57-71<br />镧系`;
-      elementDom.innerHTML += newDivHtml;
-      elementDom.classList.add("nide-sample");
-    }
-    elementDom = document.getElementById(`element-89-103`);
-    if (elementDom) {
-      // 修改元素名称（找到 .element-name 类的子元素）
-      // const newDivHtml = `${elem.symbol}`;
-      const newDivHtml = `89-103<br />锕系`;
-      elementDom.innerHTML += newDivHtml;
-      elementDom.classList.add("nide-sample");
-    }
-    elementDom = document.getElementById(`element-57-71-1`);
-    if (elementDom) {
-      // 修改元素名称（找到 .element-name 类的子元素）
-      // const newDivHtml = `${elem.symbol}`;
-      const newDivHtml = `57-71<br />镧系`;
-      elementDom.innerHTML += newDivHtml;
-      elementDom.classList.add("nide-sample");
-    }
-    elementDom = document.getElementById(`element-89-103-1`);
-    if (elementDom) {
-      // 修改元素名称（找到 .element-name 类的子元素）
-      // const newDivHtml = `${elem.symbol}`;
-      const newDivHtml = `89-103<br />锕系`;
-      elementDom.innerHTML += newDivHtml;
-      elementDom.classList.add("nide-sample");
-    }
-    // 批量添加新内容
-  } catch (err) {
-    console.error("加载失败", err);
-  }
-};
-loadAllElements();
-
-const title = "元素周期表";
 
 // 通过 id 获取元素容器
 // const elementDom = document.getElementById(`element-${elementId}`);
@@ -125,7 +271,7 @@ const title = "元素周期表";
       </div>
     </div> -->
 
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
@@ -196,7 +342,7 @@ const title = "元素周期表";
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
@@ -231,7 +377,7 @@ const title = "元素周期表";
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
@@ -266,7 +412,7 @@ const title = "元素周期表";
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
@@ -335,7 +481,7 @@ const title = "元素周期表";
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
@@ -404,7 +550,7 @@ const title = "元素周期表";
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
@@ -414,7 +560,7 @@ const title = "元素周期表";
           <div class="grid-element" id="element-56"></div>
         </el-col>
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element" id="element-57-71"></div>
+          <div class="grid-element lanthanide-sample"></div>
         </el-col>
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-72"></div>
@@ -473,7 +619,7 @@ const title = "元素周期表";
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
@@ -483,7 +629,7 @@ const title = "元素周期表";
           <div class="grid-element" id="element-88"></div>
         </el-col>
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element" id="element-89-103"></div>
+          <div class="grid-element actinide-sample"></div>
         </el-col>
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-104"></div>
@@ -542,11 +688,11 @@ const title = "元素周期表";
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4" :offset="4">
-          <div class="grid-element" id="element-57-71-1"></div>
+          <div class="grid-element lanthanide-sample"></div>
         </el-col>
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-57"></div>
@@ -606,11 +752,11 @@ const title = "元素周期表";
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="10" class="period-row">
+  <el-row :gutter="5" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
       <el-row :gutter="10">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4" :offset="4">
-          <div class="grid-element" id="element-89-103-1"></div>
+          <div class="grid-element actinide-sample"></div>
         </el-col>
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-89"></div>
@@ -674,100 +820,128 @@ const title = "元素周期表";
   <!-- 添加按钮，点击触发 increment 函数 -->
 </template>
 <style scoped>
-.read-the-docs {
-  color: #888;
-}
 /* 给选择框添加一点样式 */
-.el-select {
-  margin-left: 8px;
-  width: 200px;
-}
 
 .grid-element {
   border-radius: 4px;
-  /* min-height: 36px; */
-
-  background-color: gray;
-
   display: flex;
-  flex-direction: column; /* 垂直方向排列子元素 */
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
+  flex-direction: column;
   color: aliceblue;
-  font-size: clamp(12px, 5vw, 24px);
-  overflow: hidden;
 }
 
-.grid-element > div {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 8px 4px; /* 上下内边距8px，左右4px */
+/* 动态效果 */
+.grid-element:active,
+.grid-element:focus,
+.grid-element:hover {
+  transform: scale(1.05); /* 点击/悬浮时轻微放大 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影增强立体感 */
+}
+
+/* 若需点击时背景色变化，可单独定义 */
+.grid-element.clicked {
+}
+
+/* .element-info-up 内部：水平行排列 */
+::v-deep .element-info-up {
   display: flex;
-  flex-direction: column; /* 垂直行排列（关键） */
-  justify-content: center; /* 整体垂直居中 */
-  align-items: center; /* 整体水平居中 */
-  gap: 4px; /* 内部元素间距（可调整） */
+  flex-direction: row;
+  width: 100%; /* 确保容器宽度 */
+  height: 30px;
+  padding-top: 2%;
 }
+::v-deep .element-info-up .element-number {
+  display: inline-block;
+  width: 40%;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 防止内容过长 */
+  padding-left: 2%;
 
-.element-symbol {
-  font-size: clamp(12px, 5vw, 24px);
-  width: 100%;
-  text-align: left; /* 确保文本水平居中 */
+  text-align: center;
 }
-.element-chineseName {
-  font-size: clamp(12px, 5vw, 24px);
+::v-deep .element-info-up .element-number-mid {
+  display: inline-block;
   width: 100%;
-  text-align: center; /* 确保文本水平居中 */
+  overflow: hidden;
+  text-overflow: ellipsis; /* 防止内容过长 */
+  padding-left: 2%;
+
+  text-align: center;
+}
+::v-deep .element-info-up .element-symbol {
+  display: inline-block;
+  width: 45%;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 2%;
+}
+::v-deep .element-symbol-small {
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+}
+::v-deep .element-info-mid .element-symbol-mid {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(12px, 3vw, 20px);
+}
+::v-deep .element-info-mid {
+  height: 50px;
+  display: flex;
+  flex-direction: column; /* 垂直排列子元素 */
+  justify-content: center; /* 垂直方向居中（主轴居中） */
+  align-items: center; /* 水平方向居中（交叉轴居中） */
+}
+::v-deep .element-info-mid .element-chineseName {
+  font-size: clamp(12px, 3vw, 23px);
 }
 
 .period-row {
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
-.nonmetal {
-  background-color: #4caf50;
+::v-deep .element-type-sample {
+  font-size: clamp(6px, 3vw, 16px);
+  justify-content: center;
+  align-items: center;
+  text-overflow: ellipsis;
 }
-.noblegas {
-  background-color: #2196f3;
+::v-deep .element-type-sample-large {
+  font-size: clamp(6px, 3vw, 16px);
+  justify-content: center;
+  align-items: center;
+  text-overflow: ellipsis;
 }
-.alkalimetal {
-  background-color: #ff9800;
+::v-deep .element-type-sample-mid {
+  font-size: clamp(6px, 3vw, 10px);
+  justify-content: center;
+  align-items: center;
+  text-overflow: ellipsis;
 }
-.alkalineearth {
-  background-color: #ffc107;
-}
-.metalloid {
-  background-color: #795548;
-}
-.metal {
-  background-color: #9c27b0;
-}
-.transitionmetal {
-  background-color: #3f51b5;
-}
-.lanthanide {
-  background-color: #26a69a;
-}
-.halogen {
-  background-color: #8bc34a;
-}
-.actinide {
-  background-color: #e91e63;
-}
-#element-57-71 {
-  background-color: #26a69a;
-}
-#element-89-103 {
-  background-color: #e91e63;
+::v-deep .element-type-sample-small {
+  font-size: clamp(6px, 3vw, 8px);
+  justify-content: center;
+  align-items: center;
+  text-overflow: ellipsis;
 }
 
-.element-type-sample {
+::v-deep .nide-sample {
   font-size: clamp(6px, 3vw, 16px);
+  justify-content: center;
+  align-items: center;
 }
-.nide-sample {
-  font-size: clamp(6px, 3vw, 16px);
+::v-deep .nide-sample-mid {
+  font-size: clamp(6px, 3vw, 10px);
+  justify-content: center;
+  align-items: center;
+}
+::v-deep .nide-sample-small {
+  font-size: clamp(6px, 3vw, 8px);
+  justify-content: center;
+  align-items: center;
 }
 </style>

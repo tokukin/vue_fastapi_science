@@ -97,3 +97,41 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.nonmetal {
+  background-image: linear-gradient(to bottom left, #4caf50, #4ce951);
+}
+.noblegas {
+  background-image: linear-gradient(to bottom left, #2196f3, #55aef7);
+}
+.alkalimetal {
+  background-image: linear-gradient(to bottom left, #ff9800, #f3b04a);
+}
+.alkalineearth {
+  background-image: linear-gradient(to bottom left, #ffc107, #d6b744);
+}
+.metalloid {
+  background-image: linear-gradient(to bottom left, #795548, #ec8c5f);
+}
+.metal {
+  background-image: linear-gradient(to bottom left, #9c27b0, #c275e6);
+}
+.transitionmetal {
+  background-image: linear-gradient(to bottom left, #3f51b5, #6778e9);
+}
+.lanthanide {
+  background-image: linear-gradient(to bottom left, #26a69a, #5cc4b9);
+}
+.halogen {
+  background-image: linear-gradient(to bottom left, #8bc34a, #aedc7a);
+}
+.actinide {
+  background-image: linear-gradient(to bottom left, #e91e63, #f582a7);
+}
+
+.lanthanide-sample {
+  background-image: linear-gradient(to bottom left, #26a69a, #5cc4b9);
+}
+.actinide-sample {
+  background-image: linear-gradient(to bottom left, #e91e63, #f582a7);
+}

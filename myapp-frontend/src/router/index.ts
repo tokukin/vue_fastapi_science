@@ -74,10 +74,18 @@ const routes: RouteRecordRaw[] = [
   },
 
   {
-    path: "/chemistry/element/:elementId",
+    path: "/chemistry/element-detail/:elementId",
     name: "ChemicalElementDetail",
     component: () => import("../views/ChemicalElementDetail.vue"),
-    meta: { title: "元素详情", breadcrumb: "元素详情" },
+    meta: {
+      title: "元素详情",
+      breadcrumb: "元素详情",
+      parentBreadcrumb: [
+        { path: "/", name: "首页" }, // 第一层父级
+        { path: "/chemistry", name: "化学" },
+      ],
+      hideHeader: true,
+    },
   },
 
   {

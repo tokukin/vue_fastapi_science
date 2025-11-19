@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import Meun from "@/components/meun.vue";
+import Meun from "@/components/Meun.vue";
 import PageHeader from "@/components/PageHeader.vue";
 import MeunRight from "@/components/MeunRight.vue";
+import { useRoute } from "vue-router"; // 引入useRoute
+const route = useRoute();
+
+console.log(route.path);
 </script>
 
 <template>
   <el-container>
-    <el-header>
-      <!-- <Meun /> -->
+    <el-header v-if="!route.meta.hideHeader">
+      <!-- 根据路由元信息判断是否渲染 -->
       <MeunRight />
       <PageHeader />
-      <hr />
+      <!-- <Meun /> -->
+
+      <!-- <hr /> -->
     </el-header>
     <el-main>
       <router-view />
