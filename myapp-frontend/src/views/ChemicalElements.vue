@@ -24,6 +24,39 @@ const loadAllElements = async () => {
       //elementSample.classList.add("element-type-sample-large");
     });
 
+    const elementDomo: HTMLElement | null = document.getElementById(
+      "grid-element-demo-detail"
+    );
+    if (elementDomo) {
+      for (let elem of store.allElements) {
+        if (elem.number == 1) {
+          console.log(elem);
+          elementDomo.textContent = "";
+
+          const newDivHtml = `<div class="element-detail-info-header">
+      <div class="element-detail-number">${elem.number}</div>
+      <div class="element-detail-symbol">${elem.symbol}</div>
+      </div>
+      <div class="element-detail-info-body">
+      <div class="element-detail-chineseName">${elem.chineseName}</div>
+      <div class="element-detail-englishName">${elem.englishName}</div>
+      <div class="element-detail-electronConfig">${elem.electronConfig}</div>
+      <div class="element-detail-type">${elem.type}</div>
+ 
+      </div>
+      <div class="element-detail-info-foot">
+      
+      <div class="element-detail-weight">${elem.weight}</div>
+      
+      
+      </div>`;
+          elementDomo.innerHTML += newDivHtml;
+
+          elementDomo.classList.add(elem.type);
+        }
+      }
+    }
+
     if (windowSize.value.clientWidth > 1970) {
       elementSamples.forEach((elementSample) => {
         elementSample.classList.add("element-type-sample-large");
