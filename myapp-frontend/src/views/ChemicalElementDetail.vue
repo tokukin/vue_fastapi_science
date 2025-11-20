@@ -6,6 +6,7 @@ import { ElSelect, ElOption } from "element-plus";
 import { useChemicalElementStore } from "@/store/chemicalElementsStore";
 import type { ChemicalElementInfo } from "@/types/chemicalelement";
 import { log } from "node:console";
+import type { TabsPaneContext } from "element-plus";
 
 const chemicalElementStore = useChemicalElementStore();
 const elementData = ref<ChemicalElementInfo | null>(null); // 关键：添加这行
@@ -109,6 +110,12 @@ const title = "chemical element";
 
 // 在组件挂载时调用 fetchData 函数
 //onMounted(fetchData);
+
+const activeName = ref("first");
+
+const handleClick = (tab: TabsPaneContext, event: Event) => {
+  console.log(tab, event);
+};
 </script>
 
 <template>
@@ -120,71 +127,87 @@ const title = "chemical element";
   <hr />
 
   <el-row :gutter="10">
-    <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2" :offset="1">
-      <div class="element-detail-text">基<br />本<br />情<br />况</div>
-    </el-col>
-    <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-      <div class="element-detail-large" id="element-detail-large"></div>
-    </el-col>
-    <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
-      <div class="element-detail-text">
-        <!-- 加 v-if 判断，避免 elementData 为 null 时报错 -->
-        <div v-if="elementData">序号：{{ elementData.number }}</div>
-        <div v-if="elementData">符号：{{ elementData.symbol }}</div>
-        <div v-if="elementData">名称：{{ elementData.chineseName }}</div>
-        <div v-if="elementData">英文名称：{{ elementData.englishName }}</div>
+    <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+      <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+        <el-tab-pane label="基本情况" name="first">
+          <el-row :gutter="10">
+            <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2" :offset="1">
+              <div class="element-detail-text">基<br />本<br />情<br />况</div>
+            </el-col>
+            <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+              <div class="element-detail-large" id="element-detail-large"></div>
+            </el-col>
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+              <div class="element-detail-text">
+                <!-- 加 v-if 判断，避免 elementData 为 null 时报错 -->
+                <div v-if="elementData">序号：{{ elementData.number }}</div>
+                <div v-if="elementData">符号：{{ elementData.symbol }}</div>
+                <div v-if="elementData">
+                  名称：{{ elementData.chineseName }}
+                </div>
+                <div v-if="elementData">
+                  英文名称：{{ elementData.englishName }}
+                </div>
 
-        <div v-else>加载中...</div>
-        <!-- 加载状态提示 -->
-      </div>
-    </el-col>
-    <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
-      <div class="element-detail-text">
-        <!-- 加 v-if 判断，避免 elementData 为 null 时报错 -->
+                <div v-else>加载中...</div>
+                <!-- 加载状态提示 -->
+              </div>
+            </el-col>
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+              <div class="element-detail-text">
+                <!-- 加 v-if 判断，避免 elementData 为 null 时报错 -->
 
-        <div v-if="elementData">质量：{{ elementData.weight }}</div>
+                <div v-if="elementData">质量：{{ elementData.weight }}</div>
 
-        <div v-if="elementData?.type === 'nonmetal'">
-          类型：{{ elementData.type }}(非金属)
-        </div>
-        <div v-if="elementData?.type === 'noblegas'">
-          类型：{{ elementData.type }}(稀有气体)
-        </div>
-        <div v-if="elementData?.type === 'metal'">
-          类型：{{ elementData.type }}(金属)
-        </div>
-        <div v-if="elementData?.type === 'metalloid'">
-          类型：{{ elementData.type }}(类金属)
-        </div>
-        <div v-if="elementData?.type === 'halogen'">
-          类型：{{ elementData.type }}(卤素)
-        </div>
-        <div v-if="elementData?.type === 'actinide'">
-          类型：{{ elementData.type }}(锕系元素)
-        </div>
-        <div v-if="elementData?.type === 'lanthanide'">
-          类型：{{ elementData.type }}(镧系元素)
-        </div>
-        <div v-if="elementData?.type === 'transitionmetal'">
-          类型：{{ elementData.type }}(过渡金属)
-        </div>
-        <div v-if="elementData?.type === 'alkalimetal'">
-          类型：{{ elementData.type }}(碱金属)
-        </div>
-        <div v-if="elementData?.type === 'alkalineearth'">
-          类型：{{ elementData.type }}(碱土元素)
-        </div>
-        <div v-if="elementData">
-          第{{ elementData.group }}组；第{{ elementData.period }}周期
-        </div>
+                <div v-if="elementData?.type === 'nonmetal'">
+                  类型：{{ elementData.type }}(非金属)
+                </div>
+                <div v-if="elementData?.type === 'noblegas'">
+                  类型：{{ elementData.type }}(稀有气体)
+                </div>
+                <div v-if="elementData?.type === 'metal'">
+                  类型：{{ elementData.type }}(金属)
+                </div>
+                <div v-if="elementData?.type === 'metalloid'">
+                  类型：{{ elementData.type }}(类金属)
+                </div>
+                <div v-if="elementData?.type === 'halogen'">
+                  类型：{{ elementData.type }}(卤素)
+                </div>
+                <div v-if="elementData?.type === 'actinide'">
+                  类型：{{ elementData.type }}(锕系元素)
+                </div>
+                <div v-if="elementData?.type === 'lanthanide'">
+                  类型：{{ elementData.type }}(镧系元素)
+                </div>
+                <div v-if="elementData?.type === 'transitionmetal'">
+                  类型：{{ elementData.type }}(过渡金属)
+                </div>
+                <div v-if="elementData?.type === 'alkalimetal'">
+                  类型：{{ elementData.type }}(碱金属)
+                </div>
+                <div v-if="elementData?.type === 'alkalineearth'">
+                  类型：{{ elementData.type }}(碱土元素)
+                </div>
+                <div v-if="elementData">
+                  第{{ elementData.group }}组；第{{ elementData.period }}周期
+                </div>
 
-        <div v-if="elementData">电子排布：{{ elementData.electronConfig }}</div>
-        <div v-else>加载中...</div>
-        <!-- 加载状态提示 -->
-      </div>
+                <div v-if="elementData">
+                  电子排布：{{ elementData.electronConfig }}
+                </div>
+                <div v-else>加载中...</div>
+                <!-- 加载状态提示 -->
+              </div>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+        <el-tab-pane label="选项一" name="second">选项一</el-tab-pane>
+        <el-tab-pane label="选项二" name="third">选项二</el-tab-pane>
+        <el-tab-pane label="选项三" name="fourth">选项三</el-tab-pane>
+      </el-tabs>
     </el-col>
   </el-row>
-  <hr />
 </template>
 <style scoped>
 #element-detail-large {
@@ -193,7 +216,7 @@ const title = "chemical element";
   flex-direction: column;
   color: aliceblue;
 }
-::v-deep .element-detail-info-header {
+:deep(.element-detail-info-header) {
   display: flex;
   flex-direction: row;
   justify-content: center; /* 垂直方向居中（主轴居中） */
@@ -202,7 +225,7 @@ const title = "chemical element";
   height: 20%;
   /* padding-top: 5%; */
 }
-::v-deep .element-detail-info-body {
+:deep(.element-detail-info-body) {
   display: flex;
   flex-direction: column;
   justify-content: center; /* 垂直方向居中（主轴居中） */
@@ -211,7 +234,7 @@ const title = "chemical element";
 
   height: 60%;
 }
-::v-deep .element-detail-info-foot {
+:deep(.element-detail-info-foot) {
   display: flex;
   flex-direction: row;
   justify-content: center; /* 垂直方向居中（主轴居中） */
@@ -220,7 +243,7 @@ const title = "chemical element";
   height: 20%;
   /* padding-top: 5%; */
 }
-::v-deep .element-detail-info-header .element-detail-number {
+:deep(.element-detail-info-header .element-detail-number) {
   font-size: 24px;
   font-weight: bold;
   width: 50%;
@@ -228,7 +251,7 @@ const title = "chemical element";
   padding-left: 5%;
   font-size: clamp(5px, 3vw, 50px);
 }
-::v-deep .element-detail-info-header .element-detail-symbol {
+:deep(.element-detail-info-header .element-detail-symbol) {
   font-size: 24px;
   font-weight: bold;
   width: 50%;
@@ -236,42 +259,42 @@ const title = "chemical element";
   padding-right: 5%;
   font-size: clamp(5px, 3vw, 50px);
 }
-::v-deep .element-detail-info-body .element-detail-chineseName {
+:deep(.element-detail-info-body .element-detail-chineseName) {
   font-weight: bold;
   text-align: center;
   font-size: clamp(20px, 3vw, 200px);
 }
-::v-deep .element-detail-info-body .element-detail-englishName {
+:deep(.element-detail-info-body .element-detail-englishName) {
   font-weight: bold;
   text-align: center;
   font-size: clamp(10px, 3vw, 50px);
 }
-::v-deep .element-detail-info-body .element-detail-electronConfig {
+:deep(.element-detail-info-body .element-detail-electronConfig) {
   font-weight: bold;
   text-align: center;
   font-size: clamp(8px, 3vw, 45px);
 }
-::v-deep .element-detail-info-body .element-detail-type {
+:deep(.element-detail-info-body .element-detail-type) {
   font-weight: bold;
   text-align: center;
   font-size: clamp(8px, 3vw, 40px);
 }
-::v-deep .element-detail-info-body .element-detail-group {
+:deep(.element-detail-info-body .element-detail-group) {
   font-weight: bold;
   text-align: center;
   font-size: clamp(8px, 3vw, 35px);
 }
-::v-deep .element-detail-info-body .element-detail-period {
+:deep(.element-detail-info-body .element-detail-period) {
   font-weight: bold;
   text-align: center;
   font-size: clamp(8px, 3vw, 35px);
 }
-::v-deep .element-detail-info-foot .element-detail-weight {
+:deep(.element-detail-info-foot .element-detail-weight) {
   font-weight: bold;
   text-align: center;
   font-size: clamp(5px, 3vw, 45px);
 }
-::v-deep .element-detail-text {
+:deep(.element-detail-text) {
   display: flex;
   flex-direction: column;
   justify-content: center; /* 垂直方向居中（主轴居中） */

@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
-import { ElSelect, ElOption } from "element-plus";
 
 import { useChemicalElementStore } from "@/store/chemicalElementsStore";
-import { off } from "process";
-import { log } from "console";
 
 const store = useChemicalElementStore();
 
@@ -158,6 +155,7 @@ const setAllRatioItems = () => {
       item.style.height = `${width * 1.2}px`; // 高度 = 宽度 × 1.2
     }
   });
+
   clearGridElements();
   loadAllElements();
 };
@@ -190,6 +188,8 @@ const openElementDetail = (elementId: string) => {
   const fullUrl = window.location.origin + routePath;
   window.open(fullUrl, "_blank", "width=800,height=600");
 };
+const gutterSize = ref(2);
+const resultElement: HTMLElement | null = document.getElementById("result");
 
 // 初始化时设置
 onMounted(() => {
@@ -209,17 +209,19 @@ onMounted(() => {
       }
       // 弹窗显示元素信息
       //alert(`你点击了元素：${elementId}`);
-      const windowWidth = 400; // 窗口宽度
-      const windowHeight = 500; // 窗口高度
+      const windowWidth = window.innerWidth; // 窗口宽度
+      const windowHeight = window.innerHeight; // 窗口高度
       // 计算窗口居中位置（基于当前窗口大小）
       const left = (window.screen.width - windowWidth) / 2;
       const top = (window.screen.height - windowHeight) / 2;
       // 窗口参数：width/height=尺寸，left/top=位置，toolbar=no=隐藏工具栏
-      const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`;
+      //const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`;
+      const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`;
       //const routePath = `/chemistry/element-detail?id=${elementId}`;
       const routePath = `/chemistry/element-detail/${elementId}`;
       const fullUrl = window.location.origin + routePath;
-      const newWindow = window.open(fullUrl, "_blank", windowFeatures);
+      const newWindow = window.open(fullUrl, "_blank");
+      // const newWindow = window.open(fullUrl, "_blank", windowFeatures);
       // const newWindow = window.open("", "_blank", windowFeatures);
       if (!newWindow) {
         alert("浏览器阻止了弹出窗口，请允许弹出权限");
@@ -232,6 +234,91 @@ onMounted(() => {
         el.classList.remove("clicked");
       }, 200);
     });
+    el.addEventListener("mouseenter", () => {
+      const elementId = el.id.split("-").slice(-1)[0];
+      if (elementId) {
+        const elementDomo: HTMLElement | null = document.getElementById(
+          "grid-element-demo-detail"
+        );
+        if (elementDomo) {
+          for (let elem of store.allElements) {
+            if (elem.number.toString() == `${elementId}`) {
+              console.log(elem);
+              elementDomo.textContent = "";
+
+              const newDivHtml = `<div class="element-detail-info-header">
+      <div class="element-detail-number">${elem.number}</div>
+      <div class="element-detail-symbol">${elem.symbol}</div>
+      </div>
+      <div class="element-detail-info-body">
+      <div class="element-detail-chineseName">${elem.chineseName}</div>
+      <div class="element-detail-englishName">${elem.englishName}</div>
+      <div class="element-detail-electronConfig">${elem.electronConfig}</div>
+      <div class="element-detail-type">${elem.type}</div>
+ 
+      </div>
+      <div class="element-detail-info-foot">
+      
+      <div class="element-detail-weight">${elem.weight}</div>
+      
+      
+      </div>`;
+              elementDomo.innerHTML += newDivHtml;
+
+              elementDomo.classList.add(elem.type);
+            }
+          }
+        }
+      }
+    });
+
+    el.addEventListener("mouseleave", () => {
+      const elementDomo: HTMLElement | null = document.getElementById(
+        "grid-element-demo-detail"
+      );
+
+      if (elementDomo) {
+        elementDomo.classList.remove(...elementDomo.classList);
+        const elementId = 1;
+        if (elementId) {
+          const elementDomo: HTMLElement | null = document.getElementById(
+            "grid-element-demo-detail"
+          );
+          if (elementDomo) {
+            for (let elem of store.allElements) {
+              if (elem.number.toString() == `${elementId}`) {
+                console.log(elem);
+                elementDomo.textContent = "";
+
+                const newDivHtml = `<div class="element-detail-info-header">
+      <div class="element-detail-number">${elem.number}</div>
+      <div class="element-detail-symbol">${elem.symbol}</div>
+      </div>
+      <div class="element-detail-info-body">
+      <div class="element-detail-chineseName">${elem.chineseName}</div>
+      <div class="element-detail-englishName">${elem.englishName}</div>
+      <div class="element-detail-electronConfig">${elem.electronConfig}</div>
+      <div class="element-detail-type">${elem.type}</div>
+ 
+      </div>
+      <div class="element-detail-info-foot">
+      
+      <div class="element-detail-weight">${elem.weight}</div>
+      
+      
+      </div>`;
+                elementDomo.innerHTML += newDivHtml;
+
+                elementDomo.classList.add(elem.type);
+              }
+            }
+          }
+        }
+      }
+
+      if (elementDomo) {
+      }
+    });
   });
 });
 
@@ -239,112 +326,103 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("resize", setAllRatioItems);
 });
-
-// 通过 id 获取元素容器
-// const elementDom = document.getElementById(`element-${elementId}`);
-// if (!elementDom) return;
-// for(let elem of store.allElements){
-//   if(elem.number === elementId){
-//     // 修改元素名称（找到 .element-name 类的子元素）
-//     const nameDom = elementDom.querySelector(".element-name");
-//     if (nameDom) {
-//       nameDom.textContent = `${elem.chineseName}（${elem.symbol}）`; // 示例：修改6号元素名称
-//     }
-//   }
-// }
 </script>
 
 <template>
   <h1>{{ title }}</h1>
 
-  <!-- <div class="element-detail">
-      <h2>pinia获取到元素详情</h2>
-      <div>
-        <div v-if="store.isLoading">加载中...</div>
-        <div v-if="store.error">{{ store.error }}</div>
-
-        <ul v-if="store.allElements.length">
-          <li v-for="elem in store.allElements" :key="elem.number">
-            {{ elem.number }} - {{ elem.chineseName }} ({{ elem.symbol }})
-          </li>
-        </ul>
-      </div>
-    </div> -->
-
-  <el-row :gutter="5" class="period-row">
-    <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element" id="element-1"></div>
+  <el-row :gutter="gutterSize" class="period-row">
+    <el-col :xs="18" :sm="18" :md="18" :lg="18" :xl="18" :offset="3">
+      <el-row :gutter="gutterSize">
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2" :offset="2">
+          <div class="element-type-sample nonmetal">nonmetal<br />非金属</div>
         </el-col>
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4" :offset="8">
-          <div class="grid-element element-type-sample nonmetal">
-            nonmetal<br />非金属
-          </div>
-        </el-col>
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample noblegas">
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample noblegas">
             noblegas<br />
             稀有气体
           </div>
         </el-col>
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample alkalimetal">
+            alkalimetal<br />碱金属
+          </div>
+        </el-col>
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample alkalineearth">
+            alkalineearth<br />碱土金属
+          </div>
+        </el-col>
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample metalloid">metalloid<br />类金属</div>
+        </el-col>
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample transitionmetal">
+            transitionmetal<br />过渡金属
+          </div>
+        </el-col>
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample halogen">halogen<br />卤素</div>
+        </el-col>
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample metal">metal<br />金属</div>
+        </el-col>
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample lanthanide">
+            lanthanide<br />镧系元素
+          </div>
+        </el-col>
+        <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
+          <div class="element-type-sample actinide">actinide<br />锕系元素</div>
+        </el-col>
+      </el-row>
+    </el-col>
+  </el-row>
+  <div class="element-gap"></div>
+  <el-row :gutter="gutterSize" class="period-row">
+    <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample alkalimetal">
-            alkali-<br />metal<br />碱金属
+          <div class="grid-element" id="element-1"></div>
+        </el-col>
+        <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8" :offset="8">
+          <div id="grid-element-demo">
+            <div class="element-detail-info-header">
+              <div class="element-detail-number">序号</div>
+              <div class="element-detail-symbol">符号</div>
+            </div>
+            <div class="element-detail-info-body">
+              <div class="element-detail-chineseName">中文名</div>
+              <div class="element-detail-englishName">英文名</div>
+              <div class="element-detail-electronConfig">电子排布</div>
+              <div class="element-detail-type">类型</div>
+            </div>
+            <div class="element-detail-info-foot">
+              <div class="element-detail-weight">原子量</div>
+            </div>
           </div>
         </el-col>
       </el-row>
     </el-col>
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample alkalineearth">
-            alkali-<br />neearth<br />碱土金属
-          </div>
-        </el-col>
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample metalloid">
-            metalloid<br />类金属
-          </div>
-        </el-col>
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample metal">
-            metal<br />金属
-          </div>
-        </el-col>
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample transitionmetal">
-            transi-<br />tionmetal<br />过渡金属
-          </div>
-        </el-col>
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample lanthanide">
-            lantha-<br />nide<br />镧系元素
-          </div>
-        </el-col>
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample halogen">
-            halogen<br />卤素
-          </div>
+      <el-row :gutter="gutterSize">
+        <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <div id="grid-element-demo-detail"></div>
         </el-col>
       </el-row>
     </el-col>
-    <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
-        <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-          <div class="grid-element element-type-sample actinide">
-            actinide<br />锕系元素
-          </div>
-        </el-col>
+
+    <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="1">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4" :offset="16">
           <div class="grid-element" id="element-2"></div>
         </el-col>
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="5" class="period-row">
+  <el-row :gutter="gutterSize" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-3"></div>
         </el-col>
@@ -355,7 +433,7 @@ onUnmounted(() => {
     </el-col>
 
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-5"></div>
         </el-col>
@@ -377,9 +455,9 @@ onUnmounted(() => {
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="5" class="period-row">
+  <el-row :gutter="gutterSize" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-11"></div>
         </el-col>
@@ -390,7 +468,7 @@ onUnmounted(() => {
     </el-col>
 
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-13"></div>
         </el-col>
@@ -412,9 +490,9 @@ onUnmounted(() => {
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="5" class="period-row">
+  <el-row :gutter="gutterSize" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-19"></div>
         </el-col>
@@ -436,7 +514,7 @@ onUnmounted(() => {
       </el-row>
     </el-col>
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-25"></div>
         </el-col>
@@ -459,7 +537,7 @@ onUnmounted(() => {
     </el-col>
 
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-31"></div>
         </el-col>
@@ -481,9 +559,9 @@ onUnmounted(() => {
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="5" class="period-row">
+  <el-row :gutter="gutterSize" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-37"></div>
         </el-col>
@@ -505,7 +583,7 @@ onUnmounted(() => {
       </el-row>
     </el-col>
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-43"></div>
         </el-col>
@@ -528,7 +606,7 @@ onUnmounted(() => {
     </el-col>
 
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-49"></div>
         </el-col>
@@ -550,9 +628,9 @@ onUnmounted(() => {
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="5" class="period-row">
+  <el-row :gutter="gutterSize" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-55"></div>
         </el-col>
@@ -574,7 +652,7 @@ onUnmounted(() => {
       </el-row>
     </el-col>
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-75"></div>
         </el-col>
@@ -597,7 +675,7 @@ onUnmounted(() => {
     </el-col>
 
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-81"></div>
         </el-col>
@@ -619,9 +697,9 @@ onUnmounted(() => {
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="5" class="period-row">
+  <el-row :gutter="gutterSize" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-87"></div>
         </el-col>
@@ -643,7 +721,7 @@ onUnmounted(() => {
       </el-row>
     </el-col>
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-107"></div>
         </el-col>
@@ -666,7 +744,7 @@ onUnmounted(() => {
     </el-col>
 
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-113"></div>
         </el-col>
@@ -688,9 +766,10 @@ onUnmounted(() => {
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="5" class="period-row">
+  <div class="element-gap"></div>
+  <el-row :gutter="gutterSize" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4" :offset="4">
           <div class="grid-element lanthanide-sample"></div>
         </el-col>
@@ -709,7 +788,7 @@ onUnmounted(() => {
       </el-row>
     </el-col>
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-61"></div>
         </el-col>
@@ -732,7 +811,7 @@ onUnmounted(() => {
     </el-col>
 
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-67"></div>
         </el-col>
@@ -752,9 +831,9 @@ onUnmounted(() => {
       </el-row>
     </el-col>
   </el-row>
-  <el-row :gutter="5" class="period-row">
+  <el-row :gutter="gutterSize" class="period-row">
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6" :offset="3">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4" :offset="4">
           <div class="grid-element actinide-sample"></div>
         </el-col>
@@ -773,7 +852,7 @@ onUnmounted(() => {
       </el-row>
     </el-col>
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-93"></div>
         </el-col>
@@ -796,7 +875,7 @@ onUnmounted(() => {
     </el-col>
 
     <el-col :xs="6" :sm="6" :md="6" :lg="6" :xl="6">
-      <el-row :gutter="10">
+      <el-row :gutter="gutterSize">
         <el-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
           <div class="grid-element" id="element-99"></div>
         </el-col>
@@ -827,29 +906,50 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   color: aliceblue;
+  background-color: blueviolet;
 }
-
+#grid-element-demo {
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  color: aliceblue;
+  background-color: blueviolet;
+  position: absolute;
+  z-index: 1000;
+  width: 9vw;
+  height: 10.8vw;
+  margin-top: 1vw;
+}
+#grid-element-demo-detail {
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  color: aliceblue;
+  background-color: blueviolet;
+  position: absolute;
+  z-index: 1000;
+  width: 9vw;
+  height: 10.8vw;
+  margin-top: 1vw;
+}
 /* 动态效果 */
 .grid-element:active,
 .grid-element:focus,
 .grid-element:hover {
   transform: scale(1.05); /* 点击/悬浮时轻微放大 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影增强立体感 */
-}
-
-/* 若需点击时背景色变化，可单独定义 */
-.grid-element.clicked {
+  cursor: pointer;
 }
 
 /* .element-info-up 内部：水平行排列 */
-::v-deep .element-info-up {
+:deep(.element-info-up) {
   display: flex;
   flex-direction: row;
   width: 100%; /* 确保容器宽度 */
   height: 30px;
   padding-top: 2%;
 }
-::v-deep .element-info-up .element-number {
+:deep(.element-info-up .element-number) {
   display: inline-block;
   width: 40%;
   text-align: left;
@@ -859,7 +959,7 @@ onUnmounted(() => {
 
   text-align: center;
 }
-::v-deep .element-info-up .element-number-mid {
+:deep(.element-info-up .element-number-mid) {
   display: inline-block;
   width: 100%;
   overflow: hidden;
@@ -868,7 +968,7 @@ onUnmounted(() => {
 
   text-align: center;
 }
-::v-deep .element-info-up .element-symbol {
+:deep(.element-info-up .element-symbol) {
   display: inline-block;
   width: 45%;
   text-align: right;
@@ -877,71 +977,171 @@ onUnmounted(() => {
   text-overflow: ellipsis;
   padding-right: 2%;
 }
-::v-deep .element-symbol-small {
+:deep(.element-symbol-small) {
   justify-content: center;
   text-align: center;
   height: 100%;
   width: 100%;
 }
-::v-deep .element-info-mid .element-symbol-mid {
+:deep(.element-info-mid .element-symbol-mid) {
   display: inline-block;
   width: 100%;
   text-align: center;
   font-size: clamp(12px, 3vw, 20px);
 }
-::v-deep .element-info-mid {
+:deep(.element-info-mid) {
   height: 50px;
   display: flex;
   flex-direction: column; /* 垂直排列子元素 */
   justify-content: center; /* 垂直方向居中（主轴居中） */
   align-items: center; /* 水平方向居中（交叉轴居中） */
 }
-::v-deep .element-info-mid .element-chineseName {
+:deep(.element-info-mid .element-chineseName) {
   font-size: clamp(12px, 3vw, 23px);
 }
 
 .period-row {
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 }
 
-::v-deep .element-type-sample {
+.element-type-sample {
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  color: aliceblue;
+  font-size: clamp(6px, 3vw, 16px);
+  justify-content: center;
+  align-items: center;
+  text-overflow: ellipsis;
+  height: 50px;
+}
+:deep(.element-type-sample-large) {
   font-size: clamp(6px, 3vw, 16px);
   justify-content: center;
   align-items: center;
   text-overflow: ellipsis;
 }
-::v-deep .element-type-sample-large {
-  font-size: clamp(6px, 3vw, 16px);
-  justify-content: center;
-  align-items: center;
-  text-overflow: ellipsis;
-}
-::v-deep .element-type-sample-mid {
+:deep(.element-type-sample-mid) {
   font-size: clamp(6px, 3vw, 10px);
   justify-content: center;
   align-items: center;
   text-overflow: ellipsis;
 }
-::v-deep .element-type-sample-small {
+:deep(.element-type-sample-small) {
   font-size: clamp(6px, 3vw, 8px);
   justify-content: center;
   align-items: center;
   text-overflow: ellipsis;
 }
 
-::v-deep .nide-sample {
+:deep(.nide-sample) {
   font-size: clamp(6px, 3vw, 16px);
   justify-content: center;
   align-items: center;
 }
-::v-deep .nide-sample-mid {
+:deep(.nide-sample-mid) {
   font-size: clamp(6px, 3vw, 10px);
   justify-content: center;
   align-items: center;
 }
-::v-deep .nide-sample-small {
+:deep(.nide-sample-small) {
   font-size: clamp(6px, 3vw, 8px);
   justify-content: center;
   align-items: center;
+}
+.element-gap {
+  margin-top: 20px;
+}
+
+:deep(.element-detail-info-header) {
+  display: flex;
+  flex-direction: row;
+  justify-content: center; /* 垂直方向居中（主轴居中） */
+  align-items: center; /* 水平方向居中（交叉轴居中） */
+  width: 100%; /* 确保容器宽度 */
+  height: 20%;
+  /* padding-top: 5%; */
+}
+:deep(.element-detail-info-body) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直方向居中（主轴居中） */
+  align-items: center; /* 水平方向居中（交叉轴居中） */
+  width: 100%; /* 确保容器宽度 */
+
+  height: 60%;
+}
+:deep(.element-detail-info-foot) {
+  display: flex;
+  flex-direction: row;
+  justify-content: center; /* 垂直方向居中（主轴居中） */
+  align-items: center; /* 水平方向居中（交叉轴居中） */
+  width: 100%; /* 确保容器宽度 */
+  height: 20%;
+  /* padding-top: 5%; */
+}
+:deep(.element-detail-info-header .element-detail-number) {
+  font-size: 24px;
+  font-weight: bold;
+  width: 50%;
+  text-align: left;
+  padding-left: 5%;
+  font-size: 1vw;
+}
+:deep(.element-detail-info-header .element-detail-symbol) {
+  font-size: 24px;
+  font-weight: bold;
+  width: 50%;
+  text-align: right;
+  padding-right: 5%;
+  font-size: 1vw;
+}
+:deep(.element-detail-info-body .element-detail-chineseName) {
+  font-weight: bold;
+  text-align: center;
+  font-size: 2vw;
+}
+:deep(.element-detail-info-body .element-detail-englishName) {
+  font-weight: bold;
+  text-align: center;
+  font-size: 0.8vw;
+}
+:deep(.element-detail-info-body .element-detail-electronConfig) {
+  font-weight: bold;
+  text-align: center;
+  font-size: 0.7vw;
+}
+:deep(.element-detail-info-body .element-detail-type) {
+  font-weight: bold;
+  text-align: center;
+  font-size: 0.7vw;
+}
+:deep(.element-detail-info-body .element-detail-group) {
+  font-weight: bold;
+  text-align: center;
+  font-size: 1vw;
+}
+:deep(.element-detail-info-body .element-detail-period) {
+  font-weight: bold;
+  text-align: center;
+  font-size: 1vw;
+}
+:deep(.element-detail-info-foot .element-detail-weight) {
+  font-weight: bold;
+  text-align: center;
+  font-size: 1vw;
+}
+:deep(.element-detail-text) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直方向居中（主轴居中） */
+  align-items: center; /* 水平方向居中（交叉轴居中） */
+  font-size: clamp(20px, 3vw, 30px);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-weight: bold;
+  background-color: #3966a2;
+  color: aliceblue;
+  height: 100%;
 }
 </style>
